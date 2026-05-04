@@ -6,7 +6,6 @@ from dataclasses import dataclass
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 @dataclass
-@dataclass
 class MFGConfig:
     name: str = "Default"
     T_max: float = 5.0
