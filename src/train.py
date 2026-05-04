@@ -11,7 +11,7 @@ from physics import compute_actor_loss_components, solve_hjb_differentiable
 
 def train_actor_cce(cfg: MFGConfig, epochs=5000, mc_samples=20, burn_in=0, checkpoint_path=None):
     eng = MFGEngine(cfg)
-    actor = Actor(len(eng.A), cfg.T_max).to(device)
+    actor = Actor(len(eng.A), cfg.T_max, activation_fn=cfg.activation).to(device)
     opt_a = optim.Adam(actor.parameters(), lr=1e-4)
 
     current_lambda = 1.0
