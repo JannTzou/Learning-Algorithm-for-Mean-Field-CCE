@@ -21,7 +21,7 @@ class MFGConfig:
     m0_mean: float = 0.1
     m0_std: float = 0.11
     activation: str = "silu"
-
+    #activation: str = "relu"
 class MFGEngine:
     def __init__(self, cfg: MFGConfig):
         self.cfg = cfg
