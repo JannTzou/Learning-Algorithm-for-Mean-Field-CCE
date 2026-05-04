@@ -3,19 +3,28 @@ import torch.nn as nn
 import numpy as np
 
 class Actor(nn.Module):
-    def __init__(self, action_dim, T_max):
+    # Προσθέσαμε το activation_fn στα ορίσματα!
+    def __init__(self, action_dim, T_max, activation_fn="silu"):
         super().__init__()
         self.T_max = T_max
+        
+        # Ο "Διακόπτης": Ελέγχει τι ζήτησε ο χρήστης
+        if activation_fn.lower() == "relu":
+            act_layer = nn.ReLU()
+        else:
+            act_layer = nn.SiLU()
+
+        # Το δίκτυο τώρα παίρνει το act_layer δυναμικά
         self.net = nn.Sequential(
-            nn.Linear(3, 64), nn.LayerNorm(64), nn.SiLU(),
-            nn.Linear(64, 64), nn.LayerNorm(64), nn.SiLU(),
+            nn.Linear(3, 64), nn.LayerNorm(64), act_layer,
+            nn.Linear(64, 64), nn.LayerNorm(64), act_layer,
             nn.Linear(64, 1)
         )
         self.xi_mu = nn.Parameter(torch.tensor(0.0))
         self.xi_log_sigma = nn.Parameter(torch.tensor(np.log(0.2)))
         self.log_theta = nn.Parameter(torch.tensor(np.log(0.4)))
         self.register_buffer('actions', torch.linspace(-3, 3, action_dim))
-
+        
     def sample_xi(self, n_samples=1):
         sigma = torch.exp(self.xi_log_sigma)
         epsilon = torch.randn(n_samples, 1, device=self.xi_mu.device)
