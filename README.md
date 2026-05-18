@@ -8,5 +8,11 @@ We develop a regret minimization learning algorithm for mean-field coarse-correl
 
 # Requirements
 
+Installation
+First, install the basic requirements:
+pip install -r requirements.txt
 
-The python files are designed to run from Google Colab. To test the code open the notebooks 
+Note: By default, this installs the CPU version of JAX. If you have an NVIDIA GPU and want to use hardware acceleration, please install JAX with CUDA support by following the official documentation:
+pip install -U "jax[cuda12]"
+
+
