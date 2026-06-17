@@ -1,42 +1,36 @@
-import torch
-import torch.nn as nn
-import numpy as np
+class ActorNet(nn.Module):
+    action_dim: int
 
-class Actor(nn.Module):
-    # Προσθέσαμε το activation_fn στα ορίσματα!
-    def __init__(self, action_dim, T_max, activation_fn="silu"):
-        super().__init__()
-        self.T_max = T_max
-        
-        # Ο "Διακόπτης": Ελέγχει τι ζήτησε ο χρήστης
-        if activation_fn.lower() == "relu":
-            act_layer = nn.ReLU()
-        else:
-            act_layer = nn.SiLU()
+    @nn.compact
+    def __call__(self, tx, xi_val):
+        # tx: [batch, 2], xi_val: [batch, 1]
+        if xi_val.shape[0] != tx.shape[0]:
+            xi_val = jnp.broadcast_to(xi_val, (tx.shape[0], 1))
 
-        # Το δίκτυο τώρα παίρνει το act_layer δυναμικά
-        self.net = nn.Sequential(
-            nn.Linear(3, 64), nn.LayerNorm(64), act_layer,
-            nn.Linear(64, 64), nn.LayerNorm(64), act_layer,
-            nn.Linear(64, 1)
-        )
-        self.xi_mu = nn.Parameter(torch.tensor(0.0))
-        self.xi_log_sigma = nn.Parameter(torch.tensor(np.log(0.2)))
-        self.log_theta = nn.Parameter(torch.tensor(np.log(0.4)))
-        self.register_buffer('actions', torch.linspace(-3, 3, action_dim))
-        
-    def sample_xi(self, n_samples=1):
-        sigma = torch.exp(self.xi_log_sigma)
-        epsilon = torch.randn(n_samples, 1, device=self.xi_mu.device)
-        return self.xi_mu + sigma * epsilon
+        inp = jnp.concatenate([tx, xi_val], axis=-1)
+        x = nn.Dense(64)(inp)
+        x = nn.LayerNorm()(x)
+        x = nn.silu(x)
+        x = nn.Dense(64)(x)
+        x = nn.LayerNorm()(x)
+        x = nn.silu(x)
+        mu = 3.0 * jnp.tanh(nn.Dense(1)(x) / 3.0)
 
-    def forward(self, tx, xi_val):
-        t, x = tx[:, 0:1], tx[:, 1:2]
-        if xi_val.shape[0] != t.shape[0]:
-            xi_val = xi_val.expand(t.shape[0], 1)
-        inp = torch.cat([t, x, xi_val], dim=1)
-        mu = torch.clamp(self.net(inp), -3.0, 3.0)
-        theta = torch.exp(self.log_theta) + 1e-4
-        sq_diff = (self.actions.unsqueeze(0) - mu) ** 2
+        # Παράμετροι της κατανομής της δράσης
+        log_theta = self.param('log_theta', lambda rng: jnp.array([jnp.log(0.4)]))
+        theta = jnp.exp(log_theta) + 1e-4
+
+        actions = jnp.linspace(-3.0, 3.0, self.action_dim)
+        sq_diff = (actions[None, :] - mu) ** 2
         exponent = -sq_diff / (2 * theta ** 2)
-        return torch.exp(exponent - torch.logsumexp(exponent, dim=1, keepdim=True))
+
+        # Softmax over actions
+        return jax.nn.softmax(exponent, axis=-1)
+
+# Παράμετροι για το σήμα (Coordinator)
+class CoordinatorParams(nn.Module):
+    @nn.compact
+    def __call__(self):
+        xi_mu = self.param('xi_mu', lambda rng: jnp.array([0.0]))
+        xi_log_sigma = self.param('xi_log_sigma', lambda rng: jnp.array([jnp.log(0.2)]))
+        return xi_mu, xi_log_sigma
