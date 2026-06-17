@@ -2,7 +2,7 @@
 
 This file includes code for the project 'Optimal Mean-Field Coarse-Correlated Equilibrium: Linear Programming and No-Regret Learning' (coming soon to arXiv).
 
-
+#Goal
 
 The code provides a computational framework for learning **optimal coarse correlated equilibria (CCE)** in continuous mean-field games through **primal-dual** and **no-regret optimization schemes**.
 
@@ -34,6 +34,17 @@ The numerical method is based on a primal-dual formulation. At each iteration, t
 
 The resulting procedure can be interpreted as a no-regret learning scheme over a space of probability measures.
 
+## Documentation roadmap
+
+The documentation will be expanded with
+
+- a detailed derivation of the primal-dual scheme;
+- the connection between the linear-programming formulation and occupation measures;
+- the numerical solution of the HJB equation;
+- the construction of the best-deviation oracle;
+- implementation details for population-aware policies;
+- reproducible experiment tables;
+- interpretation of the numerical results.
 
 
 # Requirements
@@ -55,34 +66,17 @@ The project requires the following Python packages:
 - `matplotlib>=3.7`
 - `tqdm>=4.65`
 
-Στο requirements
-## Documentation roadmap
 
-The documentation will be expanded with
 
-- a detailed derivation of the primal-dual scheme;
-- the connection between the linear-programming formulation and occupation measures;
-- the numerical solution of the HJB equation;
-- the construction of the best-deviation oracle;
-- implementation details for population-aware policies;
-- reproducible experiment tables;
-- interpretation of the numerical results.
 
 ## Citation
 
 If you use this code in academic work, please cite the associated manuscript.
 
 
-@article{AUTHOR_YEAR_MEAN_FIELD_CCE,
-  title   = {Mirror Descent Schemes for Continuous Mean-Field Games:
-             A Linear-Programming Approach},
-  author  = {AUTHOR NAMES},
-  journal = {MANUSCRIPT OR JOURNAL},
-  year    = {YEAR}
-}
 
 
-The citation information will be updated once the manuscript metadata is finalized.
+**The citation information will be updated once the manuscript metadata is finalized.**
 
 ---
 
