@@ -45,20 +45,17 @@ pip install -r requirements.txt
 Note: By default, this installs the CPU version of JAX. If you have an NVIDIA GPU and want to use hardware acceleration, please install JAX with CUDA support by following the official documentation:
 pip install -U "jax[cuda12]"
 
-numpy>=1.24
+The project requires the following Python packages:
 
-scipy>=1.10
+- `numpy>=1.24`
+- `scipy>=1.10`
+- `matplotlib>=3.7`
+- `pandas>=2.0`
+- `tqdm>=4.65`
+- `pyyaml>=6.0`
+- `pytest>=7.0`
 
-matplotlib>=3.7
-
-pandas>=2.0
-
-tqdm>=4.65
-
-pyyaml>=6.0
-
-pytest>=7.0
-
+Στο requirements
 ## Documentation roadmap
 
 The documentation will be expanded with
