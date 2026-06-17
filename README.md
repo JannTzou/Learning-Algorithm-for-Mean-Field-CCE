@@ -47,13 +47,13 @@ pip install -U "jax[cuda12]"
 
 The project requires the following Python packages:
 
+- `jax>=0.4`
+- `jaxlib>=0.4`
+- `flax>=0.8`
+- `optax>=0.2`
 - `numpy>=1.24`
-- `scipy>=1.10`
 - `matplotlib>=3.7`
-- `pandas>=2.0`
 - `tqdm>=4.65`
-- `pyyaml>=6.0`
-- `pytest>=7.0`
 
 Στο requirements
 ## Documentation roadmap
