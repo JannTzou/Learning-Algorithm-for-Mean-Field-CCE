@@ -46,11 +46,17 @@ Note: By default, this installs the CPU version of JAX. If you have an NVIDIA GP
 pip install -U "jax[cuda12]"
 
 numpy>=1.24
+
 scipy>=1.10
+
 matplotlib>=3.7
+
 pandas>=2.0
+
 tqdm>=4.65
+
 pyyaml>=6.0
+
 pytest>=7.0
 
 ## Documentation roadmap
