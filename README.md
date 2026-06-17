@@ -20,7 +20,7 @@ The implementation is designed to connect the mathematical formulation of the pr
 
 ```text
 src/
-└──  __init__.py
+└── ├── __init__.py
     ├── configs.py
     ├── grids.py
     ├── networks.py
