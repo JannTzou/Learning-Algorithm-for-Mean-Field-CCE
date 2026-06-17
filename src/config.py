@@ -1,11 +1,4 @@
-import torch
-import numpy as np
-from dataclasses import dataclass
-
-# Ορίζουμε το device κεντρικά
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-@dataclass
+@dataclass(frozen=True)
 class MFGConfig:
     name: str = "Default"
     T_max: float = 5.0
@@ -19,18 +12,17 @@ class MFGConfig:
     s_max: float = 4.0
     m0_mean: float = 0.1
     m0_std: float = 0.11
-    activation: str = "silu"
-    #activation: str = "relu"
-class MFGEngine:
-    def __init__(self, cfg: MFGConfig):
+
+# Μια κλάση/δομή για να κρατάμε τα στατικά δεδομένα (grid) που περνάμε στο JIT
+class MFGEngineStatic:
+    def __init__(self, cfg):
         self.cfg = cfg
-        self.T = np.arange(0, cfg.T_max + cfg.dt, cfg.dt)
-        self.S = np.arange(cfg.s_min, cfg.s_max + cfg.dx, cfg.dx)
-        self.A = np.linspace(-3, 3, 50)
+        self.T = jnp.arange(0, cfg.T_max + cfg.dt, cfg.dt)
+        self.S = jnp.arange(cfg.s_min, cfg.s_max + cfg.dx, cfg.dx)
+        self.A = jnp.linspace(-3.0, 3.0, 50)
         self.Nt = len(self.T)
         self.Ns = len(self.S)
-        self.device = device
 
-    def get_initial_distribution(self):
-        m0 = np.exp(-0.5 * (self.S - self.cfg.m0_mean)**2 / (self.cfg.m0_std**2))
-        return m0 / (np.sum(m0) * self.cfg.dx)
+def get_initial_distribution(S, mean, std, dx):
+    m0 = jnp.exp(-0.5 * (S - mean)**2 / (std**2))
+    return m0 / (jnp.sum(m0) * dx)
