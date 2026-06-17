@@ -16,6 +16,42 @@ The implementation is designed to connect the mathematical formulation of the pr
 - visualizing convergence, population dynamics, and learned controls.
 # Structure
 
+## Repository structure
+
+```text
+src/
+└── mf_cce/
+    ├── __init__.py
+    ├── configs.py
+    ├── grids.py
+    ├── networks.py
+    ├── checkpointing.py
+    ├── fp.py
+    ├── hjb.py
+    ├── training.py
+    ├── models/
+    │   ├── __init__.py
+    │   ├── emission_abatement.py
+    │   └── flocking.py
+    └── visualization/
+        ├── __init__.py
+        ├── emission_plots.py
+        └── flocking_plots.py
+
+experiments/
+├── run_emission_abatement.py
+├── run_emission_abatement_terminal.py
+└── run_flocking.py
+
+results/
+├── checkpoints/
+│   └── .gitkeep
+├── data/
+│   └── .gitkeep
+└── figures/
+    └── .gitkeep
+```
+
 # Overview
 
 A mean-field coarse correlated equilibrium is a randomized recommendation mechanism under which a representative player has no incentive to commit, before observing the recommendation, to a different admissible strategy.
