@@ -20,8 +20,7 @@ The implementation is designed to connect the mathematical formulation of the pr
 
 ```text
 src/
-└── mf_cce/
-    ├── __init__.py
+└──  __init__.py
     ├── configs.py
     ├── grids.py
     ├── networks.py
@@ -39,9 +38,9 @@ src/
         └── flocking_plots.py
 
 experiments/
-├── run_emission_abatement.py
-├── run_emission_abatement_terminal.py
-└── run_flocking.py
+├──  run_flocking.py
+├──  run_emission_abatement.py
+└──  run_emission_abatement_terminal.py 
 
 results/
 ├── checkpoints/
