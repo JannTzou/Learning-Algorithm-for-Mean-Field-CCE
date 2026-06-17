@@ -1,10 +1,10 @@
 # No-Regret Learning Algorithm for Optimal Mean-Field Coarse-Correlated Equilibrium
 
-This file includes code for the project 'Optimal Mean-Field Coarse-Correlated Equilibrium: Linear Programming and No-Regret Learning'
+This file includes code for the project 'Optimal Mean-Field Coarse-Correlated Equilibrium: Linear Programming and No-Regret Learning' (coming soon to arXiv).
 
 
 
-The code provides a computational framework for learning **optimal coarse correlated equilibria (CCE)** in continuous mean-field games through primal-dual and no-regret optimization schemes.
+The code provides a computational framework for learning **optimal coarse correlated equilibria (CCE)** in continuous mean-field games through **primal-dual** and **no-regret optimization schemes**.
 
 The implementation is designed to connect the mathematical formulation of the problem with reproducible numerical experiments. In particular, it includes tools for
 
