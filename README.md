@@ -43,7 +43,7 @@ experiments/
 ├──  run_emission_abatement.py
 └──  run_emission_abatement_terminal.py 
 
-results/
+Generated_Plots/
 ├── checkpoints/
 │   └── .gitkeep
 ├── data/
