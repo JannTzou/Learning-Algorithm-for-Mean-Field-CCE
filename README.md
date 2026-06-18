@@ -52,23 +52,6 @@ results/
     └── .gitkeep
 ```
 
-# Overview
-
-A mean-field coarse correlated equilibrium is a randomized recommendation mechanism under which a representative player has no incentive to commit, before observing the recommendation, to a different admissible strategy.
-
-The optimization problem considered in this repository combines two objectives:
-
-1. **Equilibrium:** the recommendation must satisfy the coarse correlated equilibrium constraints;
-2. **Optimality:** among approximately incentive-compatible recommendations, the algorithm seeks one minimizing a prescribed social or planner objective.
-
-The numerical method is based on a primal-dual formulation. At each iteration, the algorithm alternates between
-
-- a primal update of the distribution over recommended policies;
-- the computation of a best-deviation response;
-- the evaluation of the corresponding external regret;
-- a dual update penalizing violations of the equilibrium constraint.
-
-The resulting procedure can be interpreted as a no-regret learning scheme over a space of probability measures.
 
 ## Documentation roadmap
 
