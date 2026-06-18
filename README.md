@@ -44,12 +44,9 @@ experiments/
 └──  run_emission_abatement_terminal.py 
 
 Generated_Plots/
-├── checkpoints/
-│   └── .gitkeep
-├── data/
-│   └── .gitkeep
-└── figures/
-    └── .gitkeep
+├── Emission_Abatement_smooth_with_lin_comp.png
+├── 
+└── 
 ```
 
 
