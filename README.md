@@ -33,15 +33,14 @@ src/
     │   ├── __init__.py
     │   ├── emission_abatement.py
     │   └── flocking.py
-    └── visualization/
-        ├── __init__.py
-        ├── emission_plots.py
-        └── flocking_plots.py
-
-experiments/
-├──  run_flocking.py
-├──  run_emission_abatement.py
-└──  run_emission_abatement_terminal.py 
+    ├── visualization/
+    │   ├── __init__.py
+    │   ├── emission_plots.py
+    │   └── flocking_plots.py
+    └── experiments/
+        ├──  run_flocking.py
+        ├──  run_emission_abatement.py
+        └──  run_emission_abatement_terminal.py 
 
 Generated_Plots/
 ├── Emission_Abatement_smooth_with_lin_comp.png
