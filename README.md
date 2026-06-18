@@ -98,9 +98,12 @@ If you use this code in academic work, please cite the associated manuscript.
 
 ## License
 
-The license for this repository is specified in the `LICENSE` file.
+The source code in this repository is released under the MIT License.
 
-For academic and research use, common choices include the MIT License and the BSD 3-Clause License. The final choice should be made before the repository is publicly released.
+This repository accompanies the paper:
+
+> Optimal coarse correlated equilibria in mean field games: linear programming and no-regret learning, Ioannis-Paraskevas Tzouanas (in collaboration with Luciano Campi and Federico Cannerozzi), 2026.
+> arXiv link: coming soon.
 
 ---
 
