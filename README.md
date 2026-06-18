@@ -102,7 +102,7 @@ The source code in this repository is released under the MIT License.
 
 This repository accompanies the paper:
 
-> Optimal coarse correlated equilibria in mean field games: linear programming and no-regret learning, Ioannis-Paraskevas Tzouanas (in collaboration with Luciano Campi and Federico Cannerozzi), 2026.
+> Optimal coarse correlated equilibria in mean field games: linear programming and no-regret learning, (with Luciano Campi and Federico Cannerozzi), 2026.
 > arXiv link: coming soon.
 
 ---
