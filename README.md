@@ -45,7 +45,7 @@ experiments/
 
 Generated_Plots/
 ├── Emission_Abatement_smooth_with_lin_comp.png
-├── 
+├── Emission_Abatement_with_social_welfare_the last.png
 └── 
 ```
 
