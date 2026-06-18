@@ -2,21 +2,22 @@
 
 This file includes code for the project 'Optimal Mean-Field Coarse-Correlated Equilibrium: Linear Programming and No-Regret Learning' (coming soon to arXiv).
 
-#Goal
+## Goal
 
 The code provides a computational framework for learning **optimal coarse correlated equilibria (CCE)** in continuous mean-field games through **primal-dual** and **no-regret optimization schemes**.
 
-The implementation is designed to connect the mathematical formulation of the problem with reproducible numerical experiments. In particular, it includes tools for
+The implementation is designed to connect the mathematical formulation of mean-field coarse correlated equilibria with reproducible numerical experiments. It contains experimental JAX implementations for
 
-- solving the representative agent's control problem;
-- computing best unilateral deviations;
-- evaluating external regret;
-- updating correlation devices and dual variables;
-- comparing population-aware and population-unaware policies;
-- visualizing convergence, population dynamics, and learned controls.
-# Structure
+- simulating mean-field population dynamics under learned recommendation policies;
+- estimating deviation values and external regret;
+- training neural recommendation policies with primal-dual updates;
+- monitoring ergodic objectives, regret estimates, and dual variables;
+- visualizing convergence behavior and external-regret diagnostics.
 
-## Repository structure
+Some examples are intended as validated benchmarks, while others are included as diagnostic experiments for testing modeling and numerical assumptions.
+
+
+## Repository Structure
 
 ```text
 src/
