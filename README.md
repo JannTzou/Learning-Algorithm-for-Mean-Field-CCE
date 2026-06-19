@@ -104,17 +104,21 @@ This repository accompanies the paper:
 
 > Optimal coarse correlated equilibria in mean field games: linear programming and no-regret learning, (with Luciano Campi and Federico Cannerozzi), 2026.
 
-΄΄΄bibtex
-   @misc{campi2026optimalcoarsecorrelatedequilibria,
-      title={Optimal Coarse Correlated Equilibria in Mean Field Games: Linear Programming and No-Regret Learning}, 
-      author={Luciano Campi and Federico Cannerozzi and Ioannis Tzouanas},
-      year={2026},
-      eprint={2606.20062},
-      archivePrefix={arXiv},
-      primaryClass={math.OC},
-      url={https://arxiv.org/abs/2606.20062}, 
+## Citation
+
+If you use this repository, please cite:
+
+```bibtex
+@misc{campi2026optimal,
+  title={Optimal Coarse Correlated Equilibria in Mean Field Games: Linear Programming and No-Regret Learning},
+  author={Campi, Luciano and Cannerozzi, Federico and Tzouanas, Ioannis},
+  year={2026},
+  eprint={2606.20062},
+  archivePrefix={arXiv},
+  primaryClass={math.OC},
+  url={https://arxiv.org/abs/2606.20062}
 }
-΄΄΄
+```
 
 ---
 
