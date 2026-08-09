@@ -109,7 +109,7 @@ This repository accompanies the paper:
 If you use this repository, please cite:
 
 ```bibtex
-@misc{campi2026optimal,
+@msic{campi2026optimal,
   title={Optimal Coarse Correlated Equilibria in Mean Field Games: Linear Programming and No-Regret Learning},
   author={Campi, Luciano and Cannerozzi, Federico and Tzouanas, Ioannis},
   year={2026},
