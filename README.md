@@ -56,12 +56,6 @@ Learning-Algorithm-for-Mean-Field-CCE/
 │
 ├── notebooks/
 │   └── quickstart_colab.ipynb
-│
-└── tests/
-    ├── test_dynamics.py
-    ├── test_policy.py
-    ├── test_hjb.py
-    └── test_smoke_training.py
 ```
 
 
