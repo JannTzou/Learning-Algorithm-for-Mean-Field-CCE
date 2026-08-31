@@ -20,33 +20,48 @@ Some examples are intended as validated benchmarks, while others are included as
 ## Repository Structure
 
 ```text
-src/
-└── ├── __init__.py
-    ├── configs.py
-    ├── grids.py
-    ├── networks.py
-    ├── checkpointing.py
-    ├── fp.py
-    ├── hjb.py
-    ├── training.py
-    ├── models/
-    │   ├── __init__.py
-    │   ├── emission_abatement.py
-    │   └── flocking.py
-    ├── experiments/
-    │    ├──  run_flocking.py
-    │    ├──  run_emission_abatement.py
-    │    └──  run_emission_abatement_terminal.py 
-    └──  visualization/
-         ├── __init__.py
-         ├── emission_plots.py
-         └── flocking_plots.py
-    
-
-Generated_Plots/
-├── Emission_Abatement_smooth_with_lin_comp.png
-├── Emission_Abatement_with_social_welfare_the last.png
-└── Flocking_System_T=5_new.png
+Learning-Algorithm-for-Mean-Field-CCE/
+├── README.md
+├── LICENSE
+├── CITATION.cff
+├── pyproject.toml
+├── .gitignore
+│
+├── src/
+│   └── mfcce/
+│       ├── __init__.py
+│       ├── config.py
+│       ├── networks.py
+│       ├── dynamics.py
+│       ├── hjb.py
+│       ├── objectives.py
+│       ├── training.py
+│       ├── checkpointing.py
+│       └── plotting.py
+│
+├── experiments/
+│   ├── flocking/
+│   │   ├── config.yaml
+│   │   └── run.py
+│   └── emissions_abatement/
+│       ├── config.yaml
+│       └── run.py
+│
+├── results/
+│   ├── figures/
+│   │   ├── flocking.png
+│   │   ├── emissions_cce.png
+│   │   └── emissions_social_welfare.png
+│   └── README.md
+│
+├── notebooks/
+│   └── quickstart_colab.ipynb
+│
+└── tests/
+    ├── test_dynamics.py
+    ├── test_policy.py
+    ├── test_hjb.py
+    └── test_smoke_training.py
 ```
 
 
