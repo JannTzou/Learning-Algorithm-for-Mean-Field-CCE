@@ -1,3 +1,8 @@
+"""Neural-network models for recommendation policies and correlation signals."""
+import jax
+import flax.linen as nn
+import jax.numpy as jnp
+
 class ActorNet(nn.Module):
     action_dim: int
 
@@ -27,7 +32,7 @@ class ActorNet(nn.Module):
         # Softmax over actions
         return jax.nn.softmax(exponent, axis=-1)
 
-# Παράμετροι για το σήμα (Coordinator)
+# Parameters for the signal of the Coordinator
 class CoordinatorParams(nn.Module):
     @nn.compact
     def __call__(self):
