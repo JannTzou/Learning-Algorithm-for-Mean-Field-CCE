@@ -13,3 +13,4 @@ outputs/
 *.pkl
 *.pth
 *.ckpt 
+*.egg-info/

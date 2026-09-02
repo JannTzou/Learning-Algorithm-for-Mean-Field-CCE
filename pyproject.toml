@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mean-field-cce"
+version = "0.1.0"
+description = "JAX implementation of primal-dual no-regret learning for mean-field coarse correlated equilibria."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { file = "LICENSE" }
+dependencies = [
+    "jax==0.4.38",
+    "jaxlib==0.4.38",
+    "flax==0.10.2",
+    "optax==0.2.4",
+    "numpy==1.26.4",
+    "matplotlib==3.9.2",
+    "tqdm==4.67.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+]
+
+[project.urls]
+Repository = "https://github.com/JannTzou/Learning-Algorithm-for-Mean-Field-CCE"
+Paper = "https://arxiv.org/abs/2606.20062"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
