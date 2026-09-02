@@ -125,7 +125,7 @@ The `outputs/` directory is ignored by Git so that local checkpoints and generat
 │       ├── checkpointing.py
 │       ├── config.py
 │       ├── networks.py
-│       ├── objectives.py
+│       ├── emissions_abatement.py
 │       ├── plotting.py
 │       └── training.py
 ├── tests/

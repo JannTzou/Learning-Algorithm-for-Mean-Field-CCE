@@ -1,4 +1,4 @@
-"""Objectives, external regret, and best-deviation computations."""
+"""Emissions-abatement objective and external-regret computation."""
 
 import jax
 import jax.numpy as jnp

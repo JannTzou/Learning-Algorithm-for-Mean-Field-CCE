@@ -5,7 +5,7 @@ import jax.numpy as jnp
 
 from mfcce.config import MFGConfig, MFGEngineStatic
 from mfcce.networks import ActorNet, CoordinatorParams
-from mfcce.objectives import compute_loss
+from mfcce.emissions_abatement import compute_loss
 
 
 def test_compute_loss_is_finite() -> None:

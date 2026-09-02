@@ -12,7 +12,7 @@ from tqdm.auto import trange
 from .checkpointing import load_checkpoint, save_checkpoint
 from .config import MFGConfig, MFGEngineStatic
 from .networks import ActorNet, CoordinatorParams
-from .objectives import compute_loss
+from .emissions_abatement import compute_loss
 
 
 History = dict[str, list[float]]
