@@ -1,62 +1,100 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 def calculate_baselines(eng):
     if "Emissions Abatement Game" in eng.cfg.name:
-        j_nash = -1.2
-        j_social = 5.8
-        j_CCE = 4.7
-    else:
-        j_nash = -1.2
-        j_social = 5.8
-        j_CCE = 4.7
+        return -1.2, 5.8, 4.7
 
-    return j_nash, j_social, j_CCE
+    raise ValueError(
+        f"No reference baselines are available for {eng.cfg.name!r}."
+    )
 
-def plot_enhanced_results(hist, j_n, j_s, j_explicit_CCE, example_name):
-    c = np.array(hist['Reward'])
-    r = np.array(hist['Regret'])
-    w_c = np.array(hist['Weighted_Reward'])
-    w_r = np.array(hist['Weighted_Regret'])
 
-    e_mu_t = np.array(hist.get('E_mu_T', []))
-    w_e_mu_t = np.array(hist.get('Weighted_E_mu_T', []))
+def _running_average(values):
+    values = np.asarray(values, dtype=float)
+    return np.cumsum(values) / np.arange(1, len(values) + 1)
 
-    epochs = np.arange(1, len(c) + 1)
 
-    fig, ax = plt.subplots(1, 3, figsize=(20, 6))
-    fig.suptitle(f"{example_name}", fontsize=15, fontweight='bold')
+def plot_enhanced_results(
+    hist,
+    j_n,
+    j_s,
+    j_explicit_CCE,
+    example_name,
+    show=True,
+):
+    required_keys = {
+        "loss",
+        "reward",
+        "moderator_objective",
+        "regret",
+        "lambda",
+    }
+    missing_keys = required_keys.difference(hist)
 
-    ax[0].plot(epochs, c, color='gray', alpha=0.3, label='Actual Cost/Reward_n')
-    ax[0].plot(epochs, w_c, color='blue', linewidth=2.5, label='Weighted Avg')
-    ax[0].axhline(j_n, color='red', ls='--', label='Nash')
-    ax[0].axhline(j_s, color='green', ls='--', label='MFC')
-    ax[0].axhline(j_explicit_CCE, color='orange', ls='--', label='Optimal CCE')
-    ax[0].set_title('Weighted Avg Cost / Reward', fontsize=12)
-    ax[0].set_xlabel('Epochs (n)')
-    ax[0].set_ylabel('Cost / Reward')
-    ax[0].grid(True, alpha=0.3)
-    ax[0].legend()
+    if missing_keys:
+        missing = ", ".join(sorted(missing_keys))
+        raise KeyError(f"Missing history entries: {missing}")
 
-    ax[1].plot(epochs, r, color='gray', alpha=0.3, label='Actual Regret_n')
-    ax[1].plot(epochs, w_r, color='purple', linewidth=2.5, label='Weighted Avg Regret')
-    ax[1].axhline(0, color='black', ls='--', linewidth=1.5)
-    ax[1].set_title('Actual Regret vs. Weighted Avg Regret', fontsize=12)
-    ax[1].set_xlabel('Epochs (n)')
-    ax[1].set_ylabel('Regret')
-    ax[1].grid(True, alpha=0.3)
-    ax[1].legend()
+    reward = np.asarray(hist["reward"], dtype=float)
+    regret = np.asarray(hist["regret"], dtype=float)
+    loss = np.asarray(hist["loss"], dtype=float)
+    moderator = np.asarray(hist["moderator_objective"], dtype=float)
+    lambda_values = np.asarray(hist["lambda"], dtype=float)
 
-    if len(e_mu_t) > 0:
-        ax[2].plot(epochs, e_mu_t, color='gray', alpha=0.3, label=r'Actual $\mathbb{E}[\overline{\mu}_T]$')
-        if len(w_e_mu_t) > 0:
-             ax[2].plot(epochs, w_e_mu_t, color='teal', linewidth=2.5, label='Weighted Avg')
+    epochs = np.arange(1, len(reward) + 1)
 
-        ax[2].set_title('Avg. Cumulative Terminal Abatement', fontsize=12)
-        ax[2].set_xlabel('Epochs (n)')
-        ax[2].set_ylabel('Terminal Abatement')
-        ax[2].grid(True, alpha=0.3)
-        ax[2].legend()
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    fig.suptitle(example_name, fontsize=15, fontweight="bold")
 
-    plt.tight_layout()
-    plt.show()
+    axes[0, 0].plot(epochs, reward, color="gray", alpha=0.4, label="Reward")
+    axes[0, 0].plot(
+        epochs,
+        _running_average(reward),
+        color="blue",
+        linewidth=2.5,
+        label="Running average",
+    )
+    axes[0, 0].axhline(j_n, color="red", linestyle="--", label="Nash")
+    axes[0, 0].axhline(j_s, color="green", linestyle="--", label="MFC")
+    axes[0, 0].axhline(
+        j_explicit_CCE,
+        color="orange",
+        linestyle="--",
+        label="Optimal CCE",
+    )
+    axes[0, 0].set_title("Reward")
+    axes[0, 0].legend()
+
+    axes[0, 1].plot(epochs, regret, color="gray", alpha=0.4, label="Regret")
+    axes[0, 1].plot(
+        epochs,
+        _running_average(regret),
+        color="purple",
+        linewidth=2.5,
+        label="Running average",
+    )
+    axes[0, 1].axhline(0.0, color="black", linestyle="--")
+    axes[0, 1].set_title("External regret")
+    axes[0, 1].legend()
+
+    axes[1, 0].plot(epochs, loss, label="Training loss")
+    axes[1, 0].plot(epochs, moderator, label="Moderator objective")
+    axes[1, 0].set_title("Training objectives")
+    axes[1, 0].legend()
+
+    axes[1, 1].plot(epochs, lambda_values, color="teal", label="Lambda")
+    axes[1, 1].set_title("Dual variable")
+    axes[1, 1].legend()
+
+    for axis in axes.flat:
+        axis.set_xlabel("Epoch")
+        axis.grid(True, alpha=0.3)
+
+    fig.tight_layout()
+
+    if show:
+        plt.show()
+
+    return fig
