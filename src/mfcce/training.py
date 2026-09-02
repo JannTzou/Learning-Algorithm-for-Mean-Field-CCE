@@ -1,6 +1,7 @@
 """JAX training loop for the primal-dual mean-field CCE algorithm."""
 
 from collections.abc import Mapping
+from pathlib import Path
 from typing import Any
 
 import jax
@@ -8,6 +9,7 @@ import jax.numpy as jnp
 import optax
 from tqdm.auto import trange
 
+from .checkpointing import load_checkpoint, save_checkpoint
 from .config import MFGConfig, MFGEngineStatic
 from .networks import ActorNet, CoordinatorParams
 from .objectives import compute_loss
@@ -15,6 +17,14 @@ from .objectives import compute_loss
 
 History = dict[str, list[float]]
 Parameters = Mapping[str, Any]
+
+_HISTORY_KEYS = {
+    "loss",
+    "reward",
+    "moderator_objective",
+    "regret",
+    "lambda",
+}
 
 
 def initialize_parameters(
@@ -50,12 +60,15 @@ def train_primal_dual(
     regret_penalty: float = 100.0,
     seed: int = 0,
     show_progress: bool = True,
+    checkpoint_path: str | Path | None = None,
+    checkpoint_every: int | None = None,
+    resume_from: str | Path | None = None,
 ) -> tuple[dict[str, Any], History]:
     """Train the recommendation policy with primal-dual updates.
 
-    The actor and correlation-device parameters are updated with Adam.
-    The non-negative Lagrange multiplier is updated by projected
-    gradient ascent.
+    Training can optionally save resumable checkpoints. When
+    ``resume_from`` is provided, ``epochs`` denotes the total target
+    number of epochs, including those already completed.
     """
     if epochs < 1:
         raise ValueError("epochs must be positive")
@@ -63,34 +76,75 @@ def train_primal_dual(
         raise ValueError("mc_samples must be positive")
     if proximal_step_size <= 0:
         raise ValueError("proximal_step_size must be positive")
+    if checkpoint_every is not None and checkpoint_every < 1:
+        raise ValueError("checkpoint_every must be positive")
+    if checkpoint_every is not None and checkpoint_path is None:
+        raise ValueError(
+            "checkpoint_path is required when checkpoint_every is set"
+        )
 
     engine = MFGEngineStatic(cfg)
     actor = ActorNet(action_dim=len(engine.A))
     coordinator = CoordinatorParams()
-
-    rng = jax.random.PRNGKey(seed)
-    init_key, rng = jax.random.split(rng)
-    params = initialize_parameters(actor, coordinator, init_key)
-
     optimizer = optax.adam(learning_rate)
-    opt_state = optimizer.init(params)
 
-    lambda_value = jnp.asarray(initial_lambda)
-    previous_regret = jnp.asarray(0.0)
+    if resume_from is None:
+        rng = jax.random.PRNGKey(seed)
+        init_key, rng = jax.random.split(rng)
+        params = initialize_parameters(actor, coordinator, init_key)
+        opt_state = optimizer.init(params)
+
+        lambda_value = jnp.asarray(initial_lambda)
+        previous_regret = jnp.asarray(0.0)
+        start_epoch = 0
+
+        history: History = {
+            "loss": [],
+            "reward": [],
+            "moderator_objective": [],
+            "regret": [],
+            "lambda": [],
+        }
+    else:
+        checkpoint = load_checkpoint(resume_from)
+
+        start_epoch = int(checkpoint["epoch"])
+        params = checkpoint["params"]
+        opt_state = checkpoint["opt_state"]
+        history = checkpoint["history"]
+        lambda_value = checkpoint["lambda_value"]
+        previous_regret = checkpoint["previous_regret"]
+        rng = checkpoint["rng"]
+
+        if start_epoch > epochs:
+            raise ValueError(
+                "checkpoint epoch exceeds the requested total epochs"
+            )
+
+        missing_keys = _HISTORY_KEYS.difference(history)
+
+        if missing_keys:
+            missing = ", ".join(sorted(missing_keys))
+            raise ValueError(
+                f"Checkpoint history is missing entries: {missing}"
+            )
+
+        invalid_lengths = [
+            key
+            for key in _HISTORY_KEYS
+            if len(history[key]) != start_epoch
+        ]
+
+        if invalid_lengths:
+            raise ValueError(
+                "Checkpoint epoch does not match history lengths"
+            )
 
     sigma = (
         dual_step_size
         if dual_step_size is not None
         else epochs ** -0.5
     )
-
-    history: History = {
-        "loss": [],
-        "reward": [],
-        "moderator_objective": [],
-        "regret": [],
-        "lambda": [],
-    }
 
     def loss_fn(
         current_params: Parameters,
@@ -122,12 +176,15 @@ def train_primal_dual(
     )
 
     progress = trange(
+        start_epoch,
         epochs,
+        initial=start_epoch,
+        total=epochs,
         disable=not show_progress,
         desc="Training",
     )
 
-    for _ in progress:
+    for epoch in progress:
         rng, step_key = jax.random.split(rng)
 
         (loss, metrics), grads = value_and_grad(
@@ -164,5 +221,30 @@ def train_primal_dual(
             loss=f"{history['loss'][-1]:.4f}",
             regret=f"{history['regret'][-1]:.4f}",
         )
+
+        completed_epochs = epoch + 1
+
+        should_save = (
+            checkpoint_path is not None
+            and (
+                completed_epochs == epochs
+                or (
+                    checkpoint_every is not None
+                    and completed_epochs % checkpoint_every == 0
+                )
+            )
+        )
+
+        if should_save:
+            save_checkpoint(
+                checkpoint_path,
+                epoch=completed_epochs,
+                params=params,
+                opt_state=opt_state,
+                history=history,
+                lambda_value=lambda_value,
+                previous_regret=previous_regret,
+                rng=rng,
+            )
 
     return params, history

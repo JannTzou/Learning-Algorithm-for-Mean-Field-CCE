@@ -1,76 +1,106 @@
-"""Utilities for saving and loading training checkpoints."""
+"""Utilities for saving and loading resumable training checkpoints."""
 
 from pathlib import Path
 from typing import Any
 
 import pickle
 
-import flax
 import jax
 import jax.numpy as jnp
 import numpy as np
 
 
+_REQUIRED_KEYS = {
+    "version",
+    "epoch",
+    "params",
+    "opt_state",
+    "history",
+    "lambda_value",
+    "previous_regret",
+    "rng",
+}
+
+
 def _to_numpy_tree(tree: Any) -> Any:
-    """Convert all leaves of a JAX pytree to NumPy arrays."""
-    return jax.tree_util.tree_map(np.array, tree)
+    """Move every JAX array in a pytree to a NumPy array."""
+    return jax.tree_util.tree_map(np.asarray, tree)
 
 
 def _to_jax_tree(tree: Any) -> Any:
-    """Convert all leaves of a pytree to JAX arrays."""
-    return jax.tree_util.tree_map(jnp.array, tree)
+    """Convert every NumPy array in a pytree to a JAX array."""
+    return jax.tree_util.tree_map(jnp.asarray, tree)
 
 
 def save_checkpoint(
     filepath: str | Path,
+    *,
     epoch: int,
     params: Any,
     opt_state: Any,
-    hist: dict[str, Any],
-    current_lambda: float,
-    prev_reg: float,
-    sum_tau: float,
-    sum_tau_reward: float,
-    sum_tau_regret: float,
-    sum_tau_J0: float,
+    history: dict[str, list[float]],
+    lambda_value: Any,
+    previous_regret: Any,
+    rng: Any,
 ) -> None:
-    """Save a training checkpoint."""
+    """Save all state required to resume training."""
+    if epoch < 0:
+        raise ValueError("epoch must be non-negative")
+
     filepath = Path(filepath)
     filepath.parent.mkdir(parents=True, exist_ok=True)
 
-    params_cpu = _to_numpy_tree(params)
-    opt_state_cpu = _to_numpy_tree(opt_state)
-
-    try:
-        params_cpu = flax.core.unfreeze(params_cpu)
-    except Exception:
-        pass
-
     checkpoint_data = {
-        "epoch": epoch,
-        "params": params_cpu,
-        "opt_state": opt_state_cpu,
-        "hist": hist,
-        "current_lambda": current_lambda,
-        "prev_reg": prev_reg,
-        "sum_tau": sum_tau,
-        "sum_tau_reward": sum_tau_reward,
-        "sum_tau_regret": sum_tau_regret,
-        "sum_tau_J0": sum_tau_J0,
+        "version": 1,
+        "epoch": int(epoch),
+        "params": _to_numpy_tree(params),
+        "opt_state": _to_numpy_tree(opt_state),
+        "history": history,
+        "lambda_value": np.asarray(lambda_value),
+        "previous_regret": np.asarray(previous_regret),
+        "rng": np.asarray(rng),
     }
 
-    with filepath.open("wb") as f:
-        pickle.dump(checkpoint_data, f)
+    temporary_path = filepath.with_name(f"{filepath.name}.tmp")
+
+    with temporary_path.open("wb") as file:
+        pickle.dump(
+            checkpoint_data,
+            file,
+            protocol=pickle.HIGHEST_PROTOCOL,
+        )
+
+    temporary_path.replace(filepath)
 
 
 def load_checkpoint(filepath: str | Path) -> dict[str, Any]:
-    """Load a training checkpoint."""
+    """Load and validate a resumable training checkpoint."""
     filepath = Path(filepath)
 
-    with filepath.open("rb") as f:
-        checkpoint_data = pickle.load(f)
+    if not filepath.is_file():
+        raise FileNotFoundError(f"Checkpoint not found: {filepath}")
 
-    checkpoint_data["params"] = _to_jax_tree(checkpoint_data["params"])
-    checkpoint_data["opt_state"] = _to_jax_tree(checkpoint_data["opt_state"])
+    with filepath.open("rb") as file:
+        checkpoint_data = pickle.load(file)
+
+    missing_keys = _REQUIRED_KEYS.difference(checkpoint_data)
+
+    if missing_keys:
+        missing = ", ".join(sorted(missing_keys))
+        raise ValueError(f"Invalid checkpoint; missing entries: {missing}")
+
+    checkpoint_data["params"] = _to_jax_tree(
+        checkpoint_data["params"]
+    )
+    checkpoint_data["opt_state"] = _to_jax_tree(
+        checkpoint_data["opt_state"]
+    )
+    checkpoint_data["lambda_value"] = jnp.asarray(
+        checkpoint_data["lambda_value"]
+    )
+    checkpoint_data["previous_regret"] = jnp.asarray(
+        checkpoint_data["previous_regret"]
+    )
+    checkpoint_data["rng"] = jnp.asarray(checkpoint_data["rng"])
 
     return checkpoint_data
