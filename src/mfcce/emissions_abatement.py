@@ -1,23 +1,31 @@
+"""Emissions-abatement objective and external-regret computation."""
+
+import jax
+import jax.numpy as jnp
+
+from .config import get_initial_distribution
+
+
 def compute_loss(params, actor_def, coord_def, cfg, T, S, A, Nt, Ns, mc_samples, rng, lambda_val, prev_reg, tau_n, theta_eff):
 
-    # --- 1. Δειγματοληψία ξ ---
+    # --- 1. Sampling \xi ---
     xi_mu, xi_log_sigma = coord_def.apply({'params': params['coord']})
     sigma_xi = jnp.exp(xi_log_sigma)
     epsilon_xi = jax.random.normal(rng, (mc_samples, 1))
     xi_b = xi_mu + sigma_xi * epsilon_xi
 
-    # --- 2. Προετοιμασία Πλέγματος ---
+    # --- 2. Grid ---
     T_g, S_g = jnp.meshgrid(T, S, indexing='ij')
     tx = jnp.stack([T_g.flatten(), S_g.flatten()], axis=1)
 
     tx_batch = jnp.broadcast_to(tx[None, :, :], (mc_samples, tx.shape[0], 2)).reshape(-1, 2)
     xi_batch = jnp.broadcast_to(xi_b[:, None, :], (mc_samples, tx.shape[0], 1)).reshape(-1, 1)
 
-    # --- 3. Forward Pass του Actor ---
+    # --- 3. Forward Pass of Actor ---
     probs = actor_def.apply({'params': params['actor']}, tx_batch, xi_batch).reshape(mc_samples, Nt, Ns, -1)
     drift = jnp.clip(jnp.sum(probs * A, axis=-1), -3.0, 3.0)
 
-    # --- 4. Fokker-Planck Εξίσωση ---
+    # --- 4. Fokker-Planck Equation ---
     m0 = get_initial_distribution(S, cfg.m0_mean, cfg.m0_std, cfg.dx)
     m0_batch = jnp.broadcast_to(m0[None, :], (mc_samples, Ns))
 

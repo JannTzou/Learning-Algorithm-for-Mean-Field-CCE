@@ -1,136 +1,170 @@
-# No-Regret Learning Algorithm for Optimal Mean-Field Coarse-Correlated Equilibrium
+# Learning Algorithm for Mean-Field CCE
 
-This file includes code for the project 'Optimal Mean-Field Coarse-Correlated Equilibrium: Linear Programming and No-Regret Learning' (coming soon to arXiv).
+[![Tests](https://github.com/JannTzou/Learning-Algorithm-for-Mean-Field-CCE/actions/workflows/tests.yml/badge.svg)](https://github.com/JannTzou/Learning-Algorithm-for-Mean-Field-CCE/actions/workflows/tests.yml)
 
-## Goal
-
-The code provides a computational framework for learning **optimal coarse correlated equilibria (CCE)** in continuous mean-field games through **primal-dual** and **no-regret optimization schemes**.
-
-The implementation is designed to connect the mathematical formulation of mean-field coarse correlated equilibria with reproducible numerical experiments. It contains experimental JAX implementations for
-
-- simulating mean-field population dynamics under learned recommendation policies;
-- estimating deviation values and external regret;
-- training neural recommendation policies with primal-dual updates;
-- monitoring ergodic objectives, regret estimates, and dual variables;
-- visualizing convergence behavior and external-regret diagnostics.
-
-Some examples are intended as validated benchmarks, while others are included as diagnostic experiments for testing modeling and numerical assumptions.
-
-
-## Repository Structure
-
-```text
-Learning-Algorithm-for-Mean-Field-CCE/
-├── README.md
-├── LICENSE
-├── CITATION.cff
-├── pyproject.toml
-├── .gitignore
-│
-├── src/
-│   └── mfcce/
-│       ├── __init__.py
-│       ├── config.py
-│       ├── networks.py
-│       ├── dynamics.py
-│       ├── hjb.py
-│       ├── objectives.py
-│       ├── training.py
-│       ├── checkpointing.py
-│       └── plotting.py
-│
-├── experiments/
-│   ├── flocking/
-│   │   ├── config.yaml
-│   │   └── run.py
-│   └── emissions_abatement/
-│       ├── config.yaml
-│       └── run.py
-│
-├── results/
-│   ├── figures/
-│   │   ├── flocking.png
-│   │   ├── emissions_cce.png
-│   │   └── emissions_social_welfare.png
-│   └── README.md
-│
-├── notebooks/
-│   └── quickstart_colab.ipynb
-```
-
-
-## Documentation roadmap
-
-The documentation will be expanded with
-
-- a detailed derivation of the primal-dual scheme;
-- the connection between the linear-programming formulation and occupation measures;
-- the numerical solution of the HJB equation;
-- the construction of the best-deviation oracle;
-- implementation details for population-aware policies;
-- reproducible experiment tables;
-- interpretation of the numerical results.
-
-
-# Requirements
-
-Installation
-First, install the basic requirements:
-pip install -r requirements.txt
-
-Note: By default, this installs the CPU version of JAX. If you have an NVIDIA GPU and want to use hardware acceleration, please install JAX with CUDA support by following the official documentation:
-pip install -U "jax[cuda12]"
-
-The project requires the following Python packages:
-
-- `jax>=0.4`
-- `jaxlib>=0.4`
-- `flax>=0.8`
-- `optax>=0.2`
-- `numpy>=1.24`
-- `matplotlib>=3.7`
-- `tqdm>=4.65`
-
-
-
-
-## Citation
-
-If you use this code in academic work, please cite the associated manuscript.
-
-
-
-
-**The citation information will be updated once the manuscript metadata is finalized.**
-
----
-
-## License
-
-The source code in this repository is released under the MIT License.
+Experimental JAX implementation of primal-dual no-regret learning for optimal coarse correlated equilibria in continuous-time mean-field games.
 
 This repository accompanies the paper:
 
-> Optimal coarse correlated equilibria in mean field games: linear programming and no-regret learning, (with Luciano Campi and Federico Cannerozzi), 2026.
+> Luciano Campi, Federico Cannerozzi, and Ioannis Tzouanas,
+> [Optimal Coarse Correlated Equilibria in Mean Field Games: Linear Programming and No-Regret Learning](https://arxiv.org/abs/2606.20062), 2026.
+
+## Overview
+
+A mean-field coarse correlated equilibrium (CCE) is a randomized recommendation scheme from which a representative player cannot benefit by committing in advance to ignore the recommendation.
+
+The accompanying paper:
+
+* introduces optimal mean-field CCEs;
+* formulates their computation through linear programming;
+* establishes existence and characterization results;
+* develops a primal-dual no-regret learning algorithm;
+* illustrates the method through numerical experiments.
+
+This repository contains an experimental JAX implementation of the learning component, including neural recommendation policies, external-regret estimation, primal-dual training, checkpointing, diagnostics, and automated tests.
+
+## Current scope
+
+The current runnable pipeline supports the emissions-abatement experiment. It provides:
+
+* a JAX/Flax neural recommendation policy;
+* Monte Carlo estimation of rewards and external regret;
+* projected primal-dual updates;
+* resumable training checkpoints;
+* training-history export to JSON;
+* diagnostic plots for rewards, regret, objectives, and the dual variable.
+
+Additional numerical figures, including the flocking benchmark, are available in `results/figures`. Their full reproduction scripts are not yet included in the runnable pipeline.
+
+## Installation
+
+Python 3.11 is recommended.
+
+```bash
+git clone https://github.com/JannTzou/Learning-Algorithm-for-Mean-Field-CCE.git
+cd Learning-Algorithm-for-Mean-Field-CCE
+
+python3.11 -m venv .venv
+source .venv/bin/activate
+
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+```
+
+## Quick verification
+
+Run the automated tests:
+
+```bash
+python -m pytest
+```
+
+Run a small two-epoch experiment:
+
+```bash
+python experiments/emissions_abatement/run.py --quick
+```
+
+The quick run verifies the complete pipeline without launching the computationally larger experiment.
+
+## Full emissions-abatement experiment
+
+Run the default experiment with 1,000 epochs and 20 Monte Carlo samples per epoch:
+
+```bash
+python experiments/emissions_abatement/run.py
+```
+
+The computational cost depends on the machine and JAX backend. The main settings can be changed explicitly:
+
+```bash
+python experiments/emissions_abatement/run.py \
+    --epochs 500 \
+    --mc-samples 10 \
+    --seed 0
+```
+
+To continue an interrupted run from its latest checkpoint:
+
+```bash
+python experiments/emissions_abatement/run.py --resume
+```
+
+## Generated outputs
+
+The experiment creates:
+
+```text
+outputs/emissions_abatement/
+├── full/
+│   ├── checkpoint.pkl
+│   ├── history.json
+│   └── training_diagnostics.png
+└── quick/
+    ├── checkpoint.pkl
+    ├── history.json
+    └── training_diagnostics.png
+```
+
+The `outputs/` directory is ignored by Git so that local checkpoints and generated runs are not committed accidentally.
+
+## Repository structure
+
+```text
+.
+├── experiments/
+│   └── emissions_abatement/
+│       └── run.py
+├── paper/
+│   └── manuscript.pdf
+├── results/
+│   ├── README.md
+│   └── figures/
+├── src/
+│   └── mfcce/
+│       ├── checkpointing.py
+│       ├── config.py
+│       ├── networks.py
+│       ├── emissions_abatement.py
+│       ├── plotting.py
+│       └── training.py
+├── tests/
+├── CITATION.cff
+├── LICENSE
+├── pyproject.toml
+└── requirements.txt
+```
+
+## Numerical results
+
+Example emissions-abatement results from the paper are available in `results/figures`.
+
+![Emissions-abatement CCE results](results/figures/emissions_cce.png)
+
+## Automated testing
+
+GitHub Actions installs the package, runs the test suite, and executes the quick emissions-abatement experiment after every push and pull request.
+
+Local tests can be run with:
+
+```bash
+python -m pytest
+```
 
 ## Citation
 
-If you use this repository, please cite:
+If you use this repository, please cite the accompanying paper. Citation metadata are also provided in `CITATION.cff`.
 
 ```bibtex
-@msic{campi2026optimal,
-  title={Optimal Coarse Correlated Equilibria in Mean Field Games: Linear Programming and No-Regret Learning},
+@article{campi2026optimal,
+  title={Optimal Coarse Correlated Equilibria in Mean Field Games:
+         Linear Programming and No-Regret Learning},
   author={Campi, Luciano and Cannerozzi, Federico and Tzouanas, Ioannis},
-  year={2026},
-  eprint={2606.20062},
-  archivePrefix={arXiv},
-  primaryClass={math.OC},
-  url={https://arxiv.org/abs/2606.20062}
+  journal={arXiv preprint arXiv:2606.20062},
+  year={2026}
 }
 ```
 
----
+## License
 
-## Contact
-
-For questions about the implementation or the mathematical formulation, please open a GitHub issue or contact the authors through the information provided in the associated manuscript.
+See the `LICENSE` file for the terms under which this repository is distributed.

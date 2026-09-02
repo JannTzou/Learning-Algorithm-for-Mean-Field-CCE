@@ -1,3 +1,9 @@
+"""Configuration and grid utilities for mean-field CCE experiments."""
+
+from dataclasses import dataclass
+
+import jax.numpy as jnp
+
 @dataclass(frozen=True)
 class MFGConfig:
     name: str = "Default"
