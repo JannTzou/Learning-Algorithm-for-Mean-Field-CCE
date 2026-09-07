@@ -28,7 +28,7 @@ This repository contains an experimental JAX implementation of the learning comp
 The current runnable pipeline supports the emissions-abatement experiment. It provides:
 
 * a JAX/Flax neural recommendation policy;
-* Monte Carlo estimation of rewards and external regret;
+* Monte Carlo estimation of costs and external regret;
 * projected primal-dual updates;
 * resumable training checkpoints;
 * training-history export to JSON;
@@ -67,9 +67,9 @@ python experiments/emissions_abatement/run.py --quick
 
 The quick run verifies the complete pipeline without launching the computationally larger experiment.
 
-## Full emissions-abatement experiment
+## Emissions-abatement game
 
-Run the default experiment with 1,000 epochs and 20 Monte Carlo samples per epoch:
+Run the default experiment with 10,000 epochs and 20 Monte Carlo samples per epoch:
 
 ```bash
 python experiments/emissions_abatement/run.py
@@ -79,8 +79,8 @@ The computational cost depends on the machine and JAX backend. The main settings
 
 ```bash
 python experiments/emissions_abatement/run.py \
-    --epochs 500 \
-    --mc-samples 10 \
+    --epochs 10000 \
+    --mc-samples 20 \
     --seed 0
 ```
 
