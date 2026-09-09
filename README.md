@@ -25,7 +25,7 @@ This repository contains an experimental JAX implementation of the learning comp
 
 ## Current scope
 
-The current runnable pipeline supports the emissions-abatement experiment. It provides:
+The current runnable pipeline supports the emissions-abatement mean-field game. It provides:
 
 * a JAX/Flax neural recommendation policy;
 * Monte Carlo estimation of costs and external regret;
@@ -35,6 +35,22 @@ The current runnable pipeline supports the emissions-abatement experiment. It pr
 * diagnostic plots for rewards, regret, objectives, and the dual variable.
 
 Additional numerical figures, including the flocking benchmark, are available in `results/figures`. Their full reproduction scripts are not yet included in the runnable pipeline.
+
+## Algorithmic workflow
+
+The diagram below summarizes the computational pipeline. The recommendation
+mechanism and the state-time input feed the neural policy, the induced
+population flow is computed through the Fokker–Planck solver, external regret
+is evaluated against the best deviation, and the primal-dual parameters are
+then updated.
+
+<p align="center">
+  <img
+    src="docs/figures/algorithm_workflow.png"
+    alt="Architecture of the primal-dual learning algorithm"
+    width="850"
+  >
+</p>
 
 ## Installation
 
